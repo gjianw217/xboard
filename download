@@ -1,0 +1,39 @@
+XBOARD_ROOT_DIR=${PWD};
+XBOARD_CONFIG_FILE=.config
+. ${XBOARD_CONFIG_FILE}
+
+get_xboard_code() {
+  if [ ! -d ${XBOARD_ROOT_DIR}/kernel/${XVENDOR}-${XBOARD}-${XCHIP}-kernel/ ];then 
+	mkdir -p kernel
+	cd kernel;
+	git clone ${XBOARD_GIT_SERVERS}/${XVENDOR}-${XBOARD}-${XCHIP}-kernel.git
+	cd -;
+  fi
+
+
+  if [ ! -d ${XBOARD_ROOT_DIR}/uboot/${XVENDOR}-${XBOARD}-${XCHIP}-uboot/ ];then 
+	mkdir -p uboot;
+	cd uboot;
+	git clone ${XBOARD_GIT_SERVERS}/${XVENDOR}-${XBOARD}-${XCHIP}-uboot.git
+	cd -;
+  fi
+}
+
+get_xboard_toolchain() {
+	if [ ! -d ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD} ];then
+		mkdir -p ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD};
+		cd ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}
+		wget ${XTOOLCHAIN_URL_FILE}
+		tar xf ${XTOOLCHAIN_VERSION}.tar.xz -C ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}/
+		rm ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}/${XTOOLCHAIN_VERSION}.tar.xz
+		cd -
+		echo "XCROSS_COMPILE=${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}/${XTOOLCHAIN_VERSION}/bin/arm-linux-gnueabihf-" >>${XBOARD_CONFIG_FILE}
+		
+   fi
+   
+   echo "it has deployed the toolchain successfully"
+
+}
+
+get_xboard_code
+get_xboard_toolchain
