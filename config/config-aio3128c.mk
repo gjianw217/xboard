@@ -1,0 +1,9 @@
+XVENDOR=firefly
+XBOARD=aio3128c
+XCHIP=rk3128
+
+XARCH=arm
+KERNEL_DEFCONFIG=firefly_defconfig
+UBOOT_DEFCONFIG=rk3128_defconfig
+KERNEL_TARGET=aio-3128c.img 
+UBOOT_TARGET=
