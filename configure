@@ -11,9 +11,11 @@
  board[1]="neo"     
  chip[1]="imx6sx"       
 ###########################################################################################
+
 . config/config.mk
-XBOARD_CONFIG_FILE=.config
+
 XBOARD_ROOT_DIR=${PWD}
+
 select_xboard_type() {
 
     while true :
@@ -42,8 +44,8 @@ select_xboard_type() {
     done
 	
     echo "Input NUM is [${xboard_type}],[${vendor[xboard_type]}] [${board[xboard_type]}] [${chip[xboard_type]}]"
-	cp ${XBOARD_ROOT_DIR}/config/config-${board[xboard_type]}.mk ${XBOARD_ROOT_DIR}/${XBOARD_CONFIG_FILE}
-	echo "XBOARD_GIT_SERVERS=$XBOARD_GIT_SERVERS" >>${XBOARD_ROOT_DIR}/${XBOARD_CONFIG_FILE}
+	cat ${XBOARD_ROOT_DIR}/config/config-${board[xboard_type]}.mk ${XBOARD_ROOT_DIR}/config/config.mk > ${XBOARD_ROOT_DIR}/${XBOARD_CONFIG_FILE}
+
 
 }
 

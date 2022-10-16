@@ -1,10 +1,9 @@
-include .config
+include  config/config.mk
+include  $(XBOARD_CONFIG_FILE)
 
 TOP_DIR=$(shell pwd)
-KERNEL_BUILD_DIR=${TOP_DIR}/build/kernel/${XVENDOR}-${XBOARD}-${XCHIP}
-KERNEL_CODE_DIR=${TOP_DIR}/kernel/${XVENDOR}-${XBOARD}-${XCHIP}-kernel
 
-UBOOT_BUILD_DIR=${TOP_DIR}/build/uboot/${XVENDOR}-${XBOARD}-${XCHIP}
+KERNEL_CODE_DIR=${TOP_DIR}/kernel/${XVENDOR}-${XBOARD}-${XCHIP}-kernel
 UBOOT_CODE_DIR=${TOP_DIR}/uboot/${XVENDOR}-${XBOARD}-${XCHIP}-uboot
 
 XBOARD_OUT=${TOP_DIR}/output
@@ -13,7 +12,7 @@ XBOARD_KERNEL_OUT=${XBOARD_OUT}/kernel
 DATE_STR=$(shell date +%y%m%d)
 FW_NAME=$(XVENDOR)_$(XBOARD)_$(XCHIP)_$(DATE_STR)
 
-.PHONY: all clean kernel uboot uboot-clean linux-mrproper uboot-mrproper
+.PHONY: all kernel uboot clean kernel-clean uboot-clean kernel-mrproper uboot-mrproper mrproper
 
 all:xboard
 
@@ -22,40 +21,38 @@ xboard:kernel uboot
 	cd $(XBOARD_OUT) && sudo tar -Jcf $(FW_NAME).tar.xz uboot kernel --remove-files
 	cd $(XBOARD_OUT) && sudo md5sum *.* > $(FW_NAME).md5
 kernel:
-	$(Q)mkdir -vp $(KERNEL_BUILD_DIR) ${XBOARD_KERNEL_OUT}
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) udoo_neo_defconfig
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) zImage
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) dtbs
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) modules
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) firmware_install modules_install INSTALL_MOD_PATH=$(KERNEL_BUILD_DIR) 	
-	
-uboot:
-	$(Q)mkdir -vp $(UBOOT_BUILD_DIR) ${XBOARD_UBOOT_OUT}
-	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(UBOOT_BUILD_DIR) udoo_neo_defconfig
-	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(UBOOT_BUILD_DIR) 
-	$(Q)cp $(UBOOT_BUILD_DIR)/SPL $(XBOARD_UBOOT_OUT)/
-	$(Q)cp $(UBOOT_BUILD_DIR)/u-boot.img $(XBOARD_UBOOT_OUT)/
-	
-#clean  - Remove most generated files but keep the config and enough build support to build external modules
-linux-clean:
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) clean
-	
-uboot-clean:
-	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) O=$(UBOOT_BUILD_DIR) clean
-	
-	
-clean:
-	rm -rf 	$(UBOOT_CODE_DIR)/output
-	rm -rf  $(UBOOT_CODE_DIR)/build	
-	
-#mrproper  - Remove all generated files + config + various backup files		
-linux-mrproper:
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) O=$(KERNEL_BUILD_DIR) mrproper
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) mrproper
+	$(Q)mkdir -vp ${XBOARD_KERNEL_OUT}
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(KERNEL_DEFCONFIG)
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(KERNEL_TARGET)
+ifeq ($(XBOARD),neo)	
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  firmware_install modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
+	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/zImage $(XBOARD_KERNEL_OUT)/
+	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/dts/imx6sx-udoo-neo-full-hdmi.dtb $(XBOARD_KERNEL_OUT)/
+endif 
 
+uboot:
+	$(Q)mkdir -vp  ${XBOARD_UBOOT_OUT}
+	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(UBOOT_DEFCONFIG)
+	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) 
+ifeq ($(XBOARD),neo)
+	$(Q)cp $(UBOOT_CODE_DIR)/SPL $(XBOARD_UBOOT_OUT)/
+	$(Q)cp $(UBOOT_CODE_DIR)/u-boot.img $(XBOARD_UBOOT_OUT)/
+endif
+
+#clean  - Remove most generated files but keep the config and enough build support to build external modules
+kernel-clean:
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  clean
+uboot-clean:
+	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE)  clean
+clean:uboot-clean kernel-clean
+	echo "it has cleaned the kernel and uboot"
+
+#mrproper  - Remove all generated files + config + various backup files		
+kernel-mrproper:
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) mrproper
 uboot-mrproper:
-	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) O=$(UBOOT_BUILD_DIR) mrproper
 	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) mrproper
-	
+mrproper:uboot-mrproper kernel-mrproper
+	echo "it has mrpropered the kernel and uboot"
 	
 	
