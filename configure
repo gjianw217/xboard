@@ -11,7 +11,7 @@
  board[1]="neo"     
  chip[1]="imx6sx"       
 ###########################################################################################
-# https://www.udoo.org/docs-neo/Introduction/Introduction.html
+# https://www.t-firefly.com/doc/download/37.html
  vendor[2]="firefly"
  board[2]="aio3128c"
  chip[2]="rk3128"

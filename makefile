@@ -18,7 +18,7 @@ FW_NAME=$(XVENDOR)_$(XBOARD)_$(XCHIP)_$(DATE_STR)
 
 all:xboard
 
-xboard:kernel uboot
+xboard:kernel uboot rootfs
 	$(Q)sudo chown -R root:root $(XBOARD_OUT)/*
 	cd $(XBOARD_OUT) && sudo tar -Jcf $(FW_NAME).tar.xz uboot kernel --remove-files
 	cd $(XBOARD_OUT) && sudo md5sum *.* > $(FW_NAME).md5

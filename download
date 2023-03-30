@@ -5,7 +5,7 @@ XBOARD_ROOT_DIR=${PWD}
 
 .PHONY: all  kernel uboot rootfs toolchain clean clean-kernel clean-uboot clean-toolchain
 
-all:kernel uboot toolchain
+all:  kernel uboot toolchain rootfs
 
 kernel:
 	mkdir -p ${XBOARD_ROOT_DIR}/kernel 
