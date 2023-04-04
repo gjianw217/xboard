@@ -5,7 +5,7 @@ XBOARD_ROOT_DIR=${PWD}
 
 .PHONY: all  kernel uboot rootfs toolchain clean clean-kernel clean-uboot clean-toolchain
 
-all:  kernel uboot toolchain rootfs
+all:kernel uboot toolchain rootfs
 
 kernel:
 	mkdir -p ${XBOARD_ROOT_DIR}/kernel 
@@ -30,6 +30,12 @@ else ifeq ($(XBOARD),aio3128c)
 	git clone https://github.com/wowotech/arm-eabi-4.6.git ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}
 	cd ${XBOARD_ROOT_DIR}
 	echo "XCROSS_COMPILE=${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}/bin/arm-eabi-" >>${XBOARD_CONFIG_FILE}
+else ifeq ($(XBOARD),ok210)
+	wget https://releases.linaro.org/components/toolchain/binaries/6.5-2018.12/arm-linux-gnueabihf/gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz
+	tar xf gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz  -C ${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}/
+	rm gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz
+	cd ${XBOARD_ROOT_DIR}
+	echo "XCROSS_COMPILE=${XBOARD_ROOT_DIR}/tool/toolchain/${XBOARD}/gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-" >>${XBOARD_CONFIG_FILE}
 endif
 
 rootfs:

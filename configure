@@ -11,12 +11,16 @@
  board[1]="neo"     
  chip[1]="imx6sx"       
 ###########################################################################################
-# https://www.t-firefly.com/doc/download/37.html
+# https://wiki.t-firefly.com/zh_CN/AIO-3128C/getting_started.html
  vendor[2]="firefly"
  board[2]="aio3128c"
  chip[2]="rk3128"
 ###########################################################################################
-
+# https://blog.csdn.net/ooonebook/article/details/54880280
+ vendor[3]="forlinx"
+ board[3]="ok210"
+ chip[3]="s5pv210"
+###########################################################################################
 . config/config.mk
 
 XBOARD_ROOT_DIR=${PWD}

@@ -25,15 +25,19 @@ xboard:kernel uboot rootfs
 kernel:
 	$(Q)mkdir -vp ${XBOARD_KERNEL_OUT}
 	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(KERNEL_DEFCONFIG)
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  menuconfig
 	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(KERNEL_TARGET)
 ifeq ($(XBOARD),neo)
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  firmware_install modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
 	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/zImage $(XBOARD_KERNEL_OUT)/
 	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/dts/imx6sx-udoo-neo-full-hdmi.dtb $(XBOARD_KERNEL_OUT)/
 else ifeq ($(XBOARD),aio3128c)
 	cp ${KERNEL_CODE_DIR}/kernel.img $(XBOARD_KERNEL_OUT)
 	cp ${KERNEL_CODE_DIR}/resource.img $(XBOARD_KERNEL_OUT)
 	cp ${KERNEL_CODE_DIR}/arch/arm/boot/zImage $(XBOARD_KERNEL_OUT)
+else ifeq ($(XBOARD),ok210)
+	cp ${KERNEL_CODE_DIR}/arch/arm/boot/uImage $(XBOARD_KERNEL_OUT)/
+	cp ${KERNEL_CODE_DIR}/arch/arm/boot/dts/s5pv210-gblw210.dtb $(XBOARD_KERNEL_OUT)/s5pv210-ok210.dtb
 endif 
 
 uboot:
@@ -46,6 +50,9 @@ ifeq ($(XBOARD),neo)
 else ifeq ($(XBOARD),aio3128c)
 	$(Q)cp $(UBOOT_CODE_DIR)/RK3128MiniLoaderAll_V2.25.bin $(XBOARD_UBOOT_OUT)/
 	$(Q)cp $(UBOOT_CODE_DIR)/uboot.img $(XBOARD_UBOOT_OUT)/
+	$(Q)cp $(UBOOT_CODE_DIR)/u-boot.bin $(XBOARD_UBOOT_OUT)/
+else ifeq ($(XBOARD),ok210)
+	$(Q)$(UBOOT_CODE_DIR)/mkmini210 $(UBOOT_CODE_DIR)/u-boot.bin $(XBOARD_UBOOT_OUT)/ok210.bin
 	$(Q)cp $(UBOOT_CODE_DIR)/u-boot.bin $(XBOARD_UBOOT_OUT)/
 endif
 
