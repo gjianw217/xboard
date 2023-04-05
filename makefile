@@ -6,7 +6,7 @@ TOP_DIR=$(shell pwd)
 KERNEL_CODE_DIR=${TOP_DIR}/kernel/${XVENDOR}-${XBOARD}-${XCHIP}-kernel
 UBOOT_CODE_DIR=${TOP_DIR}/uboot/${XVENDOR}-${XBOARD}-${XCHIP}-uboot
 
-XBOARD_OUT=${TOP_DIR}/output
+XBOARD_OUT=${TOP_DIR}/output/${XBOARD}
 XBOARD_UBOOT_OUT=${XBOARD_OUT}/uboot
 XBOARD_KERNEL_OUT=${XBOARD_OUT}/kernel
 
@@ -19,18 +19,16 @@ FW_NAME=$(XVENDOR)_$(XBOARD)_$(XCHIP)_$(DATE_STR)
 all:xboard
 
 xboard:kernel uboot rootfs
-	$(Q)sudo chown -R root:root $(XBOARD_OUT)/*
-	cd $(XBOARD_OUT) && sudo tar -Jcf $(FW_NAME).tar.xz uboot kernel --remove-files
-	cd $(XBOARD_OUT) && sudo md5sum *.* > $(FW_NAME).md5
+	cd $(XBOARD_OUT) && tar -Jcf $(FW_NAME).tar.xz uboot kernel --remove-files
+	cd $(XBOARD_OUT) && md5sum *.* > $(FW_NAME).md5
 kernel:
 	$(Q)mkdir -vp ${XBOARD_KERNEL_OUT}
 	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(KERNEL_DEFCONFIG)
-	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  menuconfig
 	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(KERNEL_TARGET)
 ifeq ($(XBOARD),neo)
 	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
 	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/zImage $(XBOARD_KERNEL_OUT)/
-	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/dts/imx6sx-udoo-neo-full-hdmi.dtb $(XBOARD_KERNEL_OUT)/
+	$(Q)cp $(KERNEL_CODE_DIR)/arch/arm/boot/dts/imx6sx-udoo-neo-full.dtb $(XBOARD_KERNEL_OUT)/
 else ifeq ($(XBOARD),aio3128c)
 	cp ${KERNEL_CODE_DIR}/kernel.img $(XBOARD_KERNEL_OUT)
 	cp ${KERNEL_CODE_DIR}/resource.img $(XBOARD_KERNEL_OUT)
