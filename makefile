@@ -36,12 +36,17 @@ else ifeq ($(XBOARD),aio3128c)
 else ifeq ($(XBOARD),ok210)
 	cp ${KERNEL_CODE_DIR}/arch/arm/boot/uImage $(XBOARD_KERNEL_OUT)/
 	cp ${KERNEL_CODE_DIR}/arch/arm/boot/dts/s5pv210-gblw210.dtb $(XBOARD_KERNEL_OUT)/s5pv210-ok210.dtb
+else ifeq ($(XBOARD),guitar)
+	cp ${KERNEL_CODE_DIR}/arch/arm/boot/uImage $(XBOARD_KERNEL_OUT)/
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
+	cp ${KERNEL_CODE_DIR}/arch/arm/boot/dts/lemaker_guitar_bba.dtb $(XBOARD_KERNEL_OUT)/kernel.dtb
+	$(Q)cp ${TOP_DIR}/config/${XBOARD}/uEnv.txt $(XBOARD_KERNEL_OUT)/
 endif 
 
 uboot:
 	$(Q)mkdir -vp  ${XBOARD_UBOOT_OUT}
 	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(UBOOT_DEFCONFIG)
-	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH) 
+	$(Q)$(MAKE) -C $(UBOOT_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  $(UBOOT_TARGET)
 ifeq ($(XBOARD),neo)
 	$(Q)cp $(UBOOT_CODE_DIR)/SPL $(XBOARD_UBOOT_OUT)/
 	$(Q)cp $(UBOOT_CODE_DIR)/u-boot.img $(XBOARD_UBOOT_OUT)/
@@ -52,6 +57,11 @@ else ifeq ($(XBOARD),aio3128c)
 else ifeq ($(XBOARD),ok210)
 	$(Q)$(UBOOT_CODE_DIR)/mkmini210 $(UBOOT_CODE_DIR)/u-boot.bin $(XBOARD_UBOOT_OUT)/ok210.bin
 	$(Q)cp $(UBOOT_CODE_DIR)/u-boot.bin $(XBOARD_UBOOT_OUT)/
+else ifeq ($(XBOARD),guitar)
+	$(Q)${TOP_DIR}/config/${XBOARD}/padbootloader $(UBOOT_CODE_DIR)/u-boot-dtb.img
+	$(Q)cp $(UBOOT_CODE_DIR)/u-boot-dtb.img $(XBOARD_UBOOT_OUT)/
+	$(Q)${TOP_DIR}/config/${XBOARD}/bootloader_pack /${TOP_DIR}/config/${XBOARD}/bootloader.bin /${TOP_DIR}/config/${XBOARD}/bootloader.ini $(UBOOT_CODE_DIR)/bootloader.bin
+	$(Q)cp $(UBOOT_CODE_DIR)/bootloader.bin $(XBOARD_UBOOT_OUT)/
 endif
 
 rootfs:
