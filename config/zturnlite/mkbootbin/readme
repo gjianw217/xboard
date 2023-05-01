@@ -1,0 +1,3 @@
+bootgen :https://github.com/Xilinx/bootgen.git
+u-boot.elf:https://github.com/MYiR-Dev/myir-zynq-uboot.git
+fsbl.elf  Z-Turn-Lite-V1.2-20190701\02-Images\BOOT

@@ -41,6 +41,11 @@ else ifeq ($(XBOARD),guitar)
 	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
 	cp ${KERNEL_CODE_DIR}/arch/arm/boot/dts/lemaker_guitar_bba.dtb $(XBOARD_KERNEL_OUT)/kernel.dtb
 	$(Q)cp ${TOP_DIR}/config/${XBOARD}/uEnv.txt $(XBOARD_KERNEL_OUT)/
+else ifeq ($(XBOARD),zturnlite)
+	cp ${KERNEL_CODE_DIR}/arch/arm/boot/uImage $(XBOARD_KERNEL_OUT)/
+	$(Q)$(MAKE) -C $(KERNEL_CODE_DIR) CROSS_COMPILE=$(XCROSS_COMPILE) ARCH=$(XARCH)  modules_install INSTALL_MOD_PATH=$(XBOARD_KERNEL_OUT)
+	cp ${KERNEL_CODE_DIR}/arch/arm/boot/dts/zynq-zturn-lite.dtb $(XBOARD_KERNEL_OUT)/devicetree.dtb
+	$(Q)cp ${TOP_DIR}/config/${XBOARD}/uEnv.txt $(XBOARD_KERNEL_OUT)/
 endif 
 
 uboot:
@@ -62,6 +67,12 @@ else ifeq ($(XBOARD),guitar)
 	$(Q)cp $(UBOOT_CODE_DIR)/u-boot-dtb.img $(XBOARD_UBOOT_OUT)/
 	$(Q)${TOP_DIR}/config/${XBOARD}/bootloader_pack /${TOP_DIR}/config/${XBOARD}/bootloader.bin /${TOP_DIR}/config/${XBOARD}/bootloader.ini $(UBOOT_CODE_DIR)/bootloader.bin
 	$(Q)cp $(UBOOT_CODE_DIR)/bootloader.bin $(XBOARD_UBOOT_OUT)/
+else ifeq ($(XBOARD),zturnlite)
+	$(Q)cp -rf ${TOP_DIR}/config/${XBOARD}/mkbootbin $(XBOARD_UBOOT_OUT)/
+	$(Q)cp $(UBOOT_CODE_DIR)/u-boot $(XBOARD_UBOOT_OUT)/mkbootbin/u-boot.elf
+	$(Q)$(MAKE) -C $(XBOARD_UBOOT_OUT)/mkbootbin
+	$(Q)cp $(XBOARD_UBOOT_OUT)/mkbootbin/BOOT.bin $(XBOARD_UBOOT_OUT)
+#	$(Q)rm -rf $(XBOARD_UBOOT_OUT)/mkbootbin
 endif
 
 rootfs:
